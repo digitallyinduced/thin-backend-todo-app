@@ -1,43 +1,58 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import * as ReactDOM from 'react-dom'
 
-import { query, initThinBackend, DataSubscription, createRecord, updateRecord, deleteRecord, createRecords, ensureIsUser, logout, getCurrentUserId } from 'thin-backend';
-import { useQuery, useCurrentUser, ThinBackend } from 'thin-backend/react';
+import { query, initThinBackend, createRecord, updateRecord, deleteRecord, Task } from 'thin-backend';
+import { useQuery, ThinBackend } from 'thin-backend/react';
 
+function Tasks() {
+    // `useQuery` always returns the latest records from the db
+    const tasks = useQuery(query('tasks').orderBy('createdAt'));
 
-function App() {
-    // With `useQuery()` you can access your database:
-    // 
-    //     const todos = useQuery(query('todos').orderBy('createdAt'));
-
-    return <ThinBackend requireLogin>
-        <div className="container">
-            <AppNavbar/>
-        </div>
-    </ThinBackend>
+    return <div className="mb-4">
+        <h1>Tasks</h1>
+        {tasks?.map(task => <Task task={task} key={task.id} />)}
+    </div>
 }
 
-function AppNavbar() {
-    // Use the `useCurrentUser()` react hook to access the current logged in user
-    const user = useCurrentUser();
+interface TaskProps {
+    task: Task;
+}
+function Task({ task }: TaskProps) {
+    const editTask = () => {
+        const newTitle = window.prompt('Title', task.title) || '';
+        updateRecord('tasks', task.id, { title: newTitle });
+    };
+    const deleteTask = () => {
+        deleteRecord('tasks', task.id);
+    }
 
-    // This navbar requires bootstrap js helpers for the dropdown
-    // If the dropdown is not working, you like removed the bootstrap JS from your index.html
+    return <div onDoubleClick={editTask}>
+        {task.title}
 
-    return <nav className="navbar navbar-expand-lg navbar-light bg-light mb-5">
-        <div className="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul className="navbar-nav ml-auto">
-                <li className="nav-item dropdown">
-                    <a className="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        {user?.email}
-                    </a>
-                    <div className="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a className="dropdown-item" href="#" onClick={() => logout()}>Logout</a>
-                    </div>
-                </li>
-            </ul>
+        <button className="d-inline-block ml-2" onClick={deleteTask}>❌</button>
+    </div>
+}
+
+function AddTaskButton() {
+    const handleClick = () => {
+        const task = { title: window.prompt('Title:') || '' };
+
+        createRecord('tasks', task);
+    }
+
+    return <button onClick={handleClick}>Add Task</button>
+}
+
+function App() {
+    // No need for redux or other state management libs
+    // `useQuery` automatically triggers a re-render on new data
+    return <ThinBackend>
+        <Tasks />
+        <div>
+            <AddTaskButton />
         </div>
-    </nav>
+        <small className="text-muted">Double click a task to edit</small>
+    </ThinBackend>
 }
 
 // This needs to be run before any calls to `query`, `createRecord`, etc.
