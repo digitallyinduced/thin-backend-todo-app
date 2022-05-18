@@ -1,0 +1,28 @@
+{
+  "name": "ihp-backend-react-starter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "dependencies": {
+    "@types/thin-backend": "https://thin.dev/ShowTypescriptDeclarationFile?typescriptDeclarationFileId=36733691-d0a0-4cb5-bc15-47d6cdb3a0c3&accessToken=cmBzTrbxlFMnyNwiAtafBEvpxqtBYMqH",
+    "dotenv": "^10.0.0",
+    "esbuild": "^0.13.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "thin-backend": "*",
+    "typescript": "^4.5.3"
+  },
+  "author": "",
+  "license": "ISC",
+  "scripts": {
+    "dev": "node server.js",
+    "build": "./node_modules/.bin/esbuild --define:process.env.NODE_ENV=\\\"production\\\" --define:process.env.BACKEND_URL=\\\"$BACKEND_URL\\\" app.tsx --bundle --outfile=public/app.js",
+    "typecheck": "node_modules/.bin/tsc --watch"
+  },
+  "devDependencies": {
+    "@types/node": "^16.11.12",
+    "@types/react": "^17.0.37",
+    "@types/react-dom": "^17.0.11"
+  }
+}
